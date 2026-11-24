@@ -17,6 +17,9 @@ Arquivos `.http` para verificar manualmente os critérios de aceite dos requisit
 | `11-fornecedores-admin.http` | RF-BE-004 como `ADMIN`: mesmo CNPJ como cliente e como fornecedor, documento duplicado, busca sem acentos, exclusão e `SUPPLIER_NOT_FOUND`. |
 | `12-fornecedores-operador-comercial.http` | RF-BE-004 como `OPERADOR_COMERCIAL`: tudo responde `403` (matriz invertida em relação a clientes), mesmo com corpo inválido. |
 | `13-fornecedores-operador-financeiro.http` | RF-BE-004 como `OPERADOR_FINANCEIRO`: CNPJ com máscara, CNPJ inválido, busca por documento, edição com `versao`, conflito, inativação e exclusão. |
+| `14-catalogo-admin.http` | RF-BE-005 como `ADMIN`: categoria duplicada sem acento, código duplicado, `tipo` imutável, categoria em uso, inativação de categoria e exclusões. |
+| `15-catalogo-operador-comercial.http` | RF-BE-005 como `OPERADOR_COMERCIAL`: produto (`UN`) e serviço (`H`), preço negativo ou com vírgula, filtros por tipo e categoria, busca por código, edição com `versao` e conflito. |
+| `16-catalogo-operador-financeiro.http` | RF-BE-005 como `OPERADOR_FINANCEIRO`: itens e categorias respondem `403`, mesmo com corpo inválido. |
 
 ## Preparação
 

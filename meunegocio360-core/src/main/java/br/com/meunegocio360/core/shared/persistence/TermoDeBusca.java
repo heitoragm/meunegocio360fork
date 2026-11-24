@@ -15,10 +15,20 @@ public record TermoDeBusca(String padraoNome, String padraoDocumento) {
       return new TermoDeBusca(null, null);
     }
     String termo = q.trim();
-    String padraoNome = "%" + escapar(termo) + "%";
     String padraoDocumento =
         termo.matches(PARECE_DOCUMENTO) ? termo.replaceAll("\\D", "") + "%" : null;
-    return new TermoDeBusca(padraoNome, padraoDocumento);
+    return new TermoDeBusca(padraoContem(termo), padraoDocumento);
+  }
+
+  /**
+   * Padrão "contém" para um texto livre (ex.: nome ou código do item, RF-BE-005 RN-10), ou {@code
+   * null} quando não há busca. A consulta DEVE usar {@code like ... escape '!'}.
+   */
+  public static String padraoContem(String q) {
+    if (q == null || q.isBlank()) {
+      return null;
+    }
+    return "%" + escapar(q.trim()) + "%";
   }
 
   private static String escapar(String texto) {

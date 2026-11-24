@@ -1,0 +1,103 @@
+# RF-BE-005 — Catálogo, perfil ADMIN: categorias, código único, tipo imutável e exclusões.
+#
+# Pré-requisito: empresa ativa (execute antes o arquivo 05-empresa-admin.http).
+# Execute NA ORDEM. Os itens finais excluem o que foi criado, então o arquivo pode ser repetido.
+
+@baseUrl = http://localhost:8080/api/v1
+
+### 1. Login como ADMIN
+# @name login
+# @prompt senha Senha do admin (valor de SEED_ADMIN_SENHA no .env)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@meunegocio360.com.br",
+  "senha": "{{senha}}"
+}
+
+### 2. Categoria "Informática" → 201 com Location
+# @name categoria
+POST {{baseUrl}}/categorias
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "nome": "Informática"
+}
+
+### 3. "informatica" (sem acento e minúscula) → 409 CATEGORY_NAME_DUPLICATE
+POST {{baseUrl}}/categorias
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "nome": "informatica"
+}
+
+### 4. Produto na categoria → 201, preco "3499.90" como string e sem estoqueMinimo
+# @name item
+POST {{baseUrl}}/itens-catalogo
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "tipo": "PRODUTO",
+  "codigo": "NOTE-I5-16",
+  "nome": "Notebook 15\" i5 16 GB",
+  "descricao": "Notebook para uso profissional",
+  "preco": "3499.90",
+  "categoriaId": "{{categoria.response.body.$.id}}"
+}
+
+### 5. Outro item com o mesmo código → 409 ITEM_CODE_DUPLICATE
+POST {{baseUrl}}/itens-catalogo
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "tipo": "PRODUTO",
+  "codigo": "NOTE-I5-16",
+  "nome": "Outro notebook",
+  "preco": "2999.00"
+}
+
+### 6. Tentativa de mudar o tipo para SERVICO → 422 ITEM_TYPE_IMMUTABLE
+PUT {{baseUrl}}/itens-catalogo/{{item.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "tipo": "SERVICO",
+  "codigo": "NOTE-I5-16",
+  "nome": "Notebook 15\" i5 16 GB",
+  "preco": "3499.90",
+  "categoriaId": "{{categoria.response.body.$.id}}",
+  "versao": 0
+}
+
+### 7. Excluir a categoria com item → 422 CATEGORY_IN_USE ("possui 1 item vinculado")
+DELETE {{baseUrl}}/categorias/{{categoria.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### 8. Inativar a categoria → 200 com ativo false
+PATCH {{baseUrl}}/categorias/{{categoria.response.body.$.id}}/situacao
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "ativo": false,
+  "versao": {{categoria.response.body.$.versao}}
+}
+
+### 9. O item permanece inalterado, ainda com a categoria → 200
+GET {{baseUrl}}/itens-catalogo/{{item.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### 10. Exclusão do item (sem vínculos) → 204
+DELETE {{baseUrl}}/itens-catalogo/{{item.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### 11. Agora a categoria não tem itens: exclusão → 204
+DELETE {{baseUrl}}/categorias/{{categoria.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}

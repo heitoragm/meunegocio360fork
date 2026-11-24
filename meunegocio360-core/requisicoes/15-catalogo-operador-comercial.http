@@ -1,0 +1,128 @@
+# RF-BE-005 — Catálogo, perfil OPERADOR_COMERCIAL: produtos, serviços, preço, filtros e versão.
+#
+# Pré-requisito: empresa ativa (execute antes o arquivo 05-empresa-admin.http).
+# Execute NA ORDEM. Os itens finais excluem o que foi criado, então o arquivo pode ser repetido.
+
+@baseUrl = http://localhost:8080/api/v1
+
+### 1. Login como OPERADOR_COMERCIAL
+# @name login
+# @prompt senha Senha do operador comercial (valor de SEED_USUARIO_SENHA no .env)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "usuario@meunegocio360.com.br",
+  "senha": "{{senha}}"
+}
+
+### 2. Categoria "Acessórios" → 201
+# @name categoria
+POST {{baseUrl}}/categorias
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "nome": "Acessórios"
+}
+
+### 3. Produto → 201 com unidade "UN", ativo true, preco "89.90" e SEM estoqueMinimo
+# @name produto
+POST {{baseUrl}}/itens-catalogo
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "tipo": "PRODUTO",
+  "codigo": "MSE-01",
+  "nome": "Mouse sem fio",
+  "preco": "89.90",
+  "categoriaId": "{{categoria.response.body.$.id}}"
+}
+
+### 4. Serviço → 201 com unidade "H"
+# @name servico
+POST {{baseUrl}}/itens-catalogo
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "tipo": "SERVICO",
+  "nome": "Formatação de notebook",
+  "preco": "150.00",
+  "categoriaId": "{{categoria.response.body.$.id}}"
+}
+
+### 5. Preço negativo → 400 VALIDATION_ERROR no campo "preco"
+POST {{baseUrl}}/itens-catalogo
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "tipo": "PRODUTO",
+  "nome": "Preço negativo",
+  "preco": "-1.00"
+}
+
+### 6. Preço com vírgula → 400 VALIDATION_ERROR no campo "preco"
+POST {{baseUrl}}/itens-catalogo
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "tipo": "PRODUTO",
+  "nome": "Preço com vírgula",
+  "preco": "10,5"
+}
+
+### 7. Filtro tipo=PRODUTO → só produtos; o serviço do item 4 NÃO aparece
+GET {{baseUrl}}/itens-catalogo?tipo=PRODUTO
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### 8. Filtro combinado tipo=SERVICO e categoria → só o serviço do item 4
+GET {{baseUrl}}/itens-catalogo?tipo=SERVICO&categoriaId={{categoria.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### 9. Busca pelo código, sem distinguir maiúsculas → o mouse aparece
+GET {{baseUrl}}/itens-catalogo?q=mse
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### 10. Novo preço com a versao lida (0) → 200, preco "79.90" e versao 1
+PUT {{baseUrl}}/itens-catalogo/{{produto.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "tipo": "PRODUTO",
+  "codigo": "MSE-01",
+  "nome": "Mouse sem fio",
+  "preco": "79.90",
+  "categoriaId": "{{categoria.response.body.$.id}}",
+  "versao": 0
+}
+
+### 11. Mesma edição com a versao antiga (0) → 409 VERSION_CONFLICT
+PUT {{baseUrl}}/itens-catalogo/{{produto.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "tipo": "PRODUTO",
+  "codigo": "MSE-01",
+  "nome": "Mouse sem fio",
+  "preco": "69.90",
+  "categoriaId": "{{categoria.response.body.$.id}}",
+  "versao": 0
+}
+
+### 12. Limpeza: exclui o produto → 204
+DELETE {{baseUrl}}/itens-catalogo/{{produto.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### 13. Limpeza: exclui o serviço → 204
+DELETE {{baseUrl}}/itens-catalogo/{{servico.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### 14. Limpeza: exclui a categoria, já sem itens → 204
+DELETE {{baseUrl}}/categorias/{{categoria.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
