@@ -1,15 +1,16 @@
-package br.com.meunegocio360.core.cliente.application;
+package br.com.meunegocio360.core.shared.persistence;
 
 /**
- * Converte o parâmetro {@code q} nos padrões LIKE da busca (RN-08): o nome "contém" o texto; o
- * documento "começa com" os dígitos, só quando o texto parece um documento (dígitos e máscara). Os
- * curingas digitados ({@code %}, {@code _}) são escapados com {@code !}, para valerem como texto.
+ * Converte o parâmetro {@code q} das listagens nos padrões LIKE da busca por nome ou documento
+ * (RNF-BE-16): o nome "contém" o texto; o documento "começa com" os dígitos, só quando o texto
+ * parece um documento (dígitos e máscara). Os curingas digitados ({@code %}, {@code _}) são
+ * escapados com {@code !}; a consulta DEVE usar {@code like ... escape '!'} no nome.
  */
-record TermoDeBusca(String padraoNome, String padraoDocumento) {
+public record TermoDeBusca(String padraoNome, String padraoDocumento) {
 
   private static final String PARECE_DOCUMENTO = "[0-9.\\-/\\s]*[0-9][0-9.\\-/\\s]*";
 
-  static TermoDeBusca de(String q) {
+  public static TermoDeBusca de(String q) {
     if (q == null || q.isBlank()) {
       return new TermoDeBusca(null, null);
     }

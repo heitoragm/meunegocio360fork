@@ -1,0 +1,45 @@
+# RF-BE-004 — Fornecedores, perfil OPERADOR_COMERCIAL (sem acesso: tudo responde 403 ACCESS_DENIED).
+#
+# É a matriz INVERTIDA em relação a clientes (RN-05): o comercial acessa clientes, não fornecedores.
+# O 403 vem antes de qualquer validação: mesmo um corpo inválido não revela mensagens do recurso.
+
+@baseUrl = http://localhost:8080/api/v1
+
+### 1. Login como OPERADOR_COMERCIAL
+# @name login
+# @prompt senha Senha do operador comercial (valor de SEED_USUARIO_SENHA no .env)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "usuario@meunegocio360.com.br",
+  "senha": "{{senha}}"
+}
+
+### 2. Listagem de fornecedores → 403 ACCESS_DENIED
+GET {{baseUrl}}/fornecedores
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### 3. Cadastro com corpo válido → 403 ACCESS_DENIED
+POST {{baseUrl}}/fornecedores
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "tipoPessoa": "JURIDICA",
+  "nome": "Tentativa do Comercial Ltda",
+  "documento": "11444777000161"
+}
+
+### 4. Cadastro com corpo inválido → também 403 ACCESS_DENIED (e não 400)
+POST {{baseUrl}}/fornecedores
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "tipoPessoa": "OUTRA"
+}
+
+### 5. Contraprova: o mesmo perfil acessa clientes → 200
+GET {{baseUrl}}/clientes
+Authorization: Bearer {{login.response.body.$.accessToken}}

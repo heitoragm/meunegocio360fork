@@ -1,7 +1,7 @@
 package br.com.meunegocio360.core.cliente.api;
 
 import br.com.meunegocio360.core.cliente.application.FichaDoCliente;
-import br.com.meunegocio360.core.cliente.domain.TipoPessoa;
+import br.com.meunegocio360.core.shared.domain.TipoPessoa;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.UUID;

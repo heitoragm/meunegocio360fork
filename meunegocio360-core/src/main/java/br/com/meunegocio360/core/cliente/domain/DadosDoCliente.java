@@ -1,5 +1,7 @@
 package br.com.meunegocio360.core.cliente.domain;
 
+import br.com.meunegocio360.core.shared.domain.TipoPessoa;
+
 /**
  * Campos editáveis do cliente, já validados e normalizados: textos aparados, opcionais vazios como
  * nulo e documento só com dígitos (RN-02, RN-04).

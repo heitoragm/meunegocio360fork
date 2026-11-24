@@ -1,0 +1,69 @@
+# RF-BE-004 — Fornecedores, perfil ADMIN (todas as operações).
+#
+# Pré-requisito: empresa ativa (execute antes o arquivo 05-empresa-admin.http).
+# Execute NA ORDEM. Os itens finais excluem o que foi criado, então o arquivo pode ser repetido.
+
+@baseUrl = http://localhost:8080/api/v1
+
+### 1. Login como ADMIN
+# @name login
+# @prompt senha Senha do admin (valor de SEED_ADMIN_SENHA no .env)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@meunegocio360.com.br",
+  "senha": "{{senha}}"
+}
+
+### 2. Cliente com o CNPJ 11.444.777/0001-61 → 201 (prepara o item 3)
+# @name cliente
+POST {{baseUrl}}/clientes
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "tipoPessoa": "JURIDICA",
+  "nome": "Alfa como cliente",
+  "documento": "11444777000161"
+}
+
+### 3. Fornecedor com o MESMO CNPJ do cliente → 201 (a unicidade vale por entidade, RN-02)
+# @name fornecedor
+POST {{baseUrl}}/fornecedores
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "tipoPessoa": "JURIDICA",
+  "nome": "Distribuidora Álfa Ltda",
+  "documento": "11.444.777/0001-61",
+  "email": "compras@alfa.com.br"
+}
+
+### 4. Segundo fornecedor com o mesmo CNPJ → 409 SUPPLIER_DOCUMENT_DUPLICATE
+POST {{baseUrl}}/fornecedores
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "tipoPessoa": "JURIDICA",
+  "nome": "Alfa Duplicada",
+  "documento": "11444777000161"
+}
+
+### 5. Busca sem acentos nem maiúsculas → 200 com a distribuidora em "content"
+GET {{baseUrl}}/fornecedores?q=distribuidora alfa
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### 6. Exclusão do fornecedor (sem vínculos) → 204
+DELETE {{baseUrl}}/fornecedores/{{fornecedor.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### 7. Fornecedor excluído → 404 SUPPLIER_NOT_FOUND (código próprio, não CUSTOMER_*)
+GET {{baseUrl}}/fornecedores/{{fornecedor.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### 8. Limpeza: exclui o cliente criado no item 2 → 204
+DELETE {{baseUrl}}/clientes/{{cliente.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}

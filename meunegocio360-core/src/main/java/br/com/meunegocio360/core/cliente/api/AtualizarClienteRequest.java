@@ -1,6 +1,8 @@
 package br.com.meunegocio360.core.cliente.api;
 
 import br.com.meunegocio360.core.cliente.domain.DadosDoCliente;
+import br.com.meunegocio360.core.shared.domain.TipoPessoa;
+import br.com.meunegocio360.core.shared.validation.DocumentoCompativel;
 import br.com.meunegocio360.core.shared.validation.DocumentoFiscal;
 import br.com.meunegocio360.core.shared.web.Textos;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -51,7 +53,7 @@ public record AtualizarClienteRequest(
   }
 
   DadosDoCliente paraDados() {
-    return ClienteRequests.dados(tipoPessoa, nome, documento, email, telefone);
+    return new DadosDoCliente(TipoPessoa.deTexto(tipoPessoa), nome, documento, email, telefone);
   }
 
   /** Dados pessoais nunca em logs (RNF-025). */

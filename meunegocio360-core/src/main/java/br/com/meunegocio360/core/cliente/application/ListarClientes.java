@@ -2,6 +2,8 @@ package br.com.meunegocio360.core.cliente.application;
 
 import br.com.meunegocio360.core.cliente.domain.ClienteRepository;
 import br.com.meunegocio360.core.empresa.application.EmpresaAtiva;
+import br.com.meunegocio360.core.shared.persistence.TermoDeBusca;
+import br.com.meunegocio360.core.shared.web.SituacaoDoFiltro;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

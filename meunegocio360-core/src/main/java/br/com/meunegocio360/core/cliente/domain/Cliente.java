@@ -1,5 +1,6 @@
 package br.com.meunegocio360.core.cliente.domain;
 
+import br.com.meunegocio360.core.shared.domain.TipoPessoa;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

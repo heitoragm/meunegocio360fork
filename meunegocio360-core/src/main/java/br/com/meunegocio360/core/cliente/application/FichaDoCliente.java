@@ -1,7 +1,7 @@
 package br.com.meunegocio360.core.cliente.application;
 
 import br.com.meunegocio360.core.cliente.domain.Cliente;
-import br.com.meunegocio360.core.cliente.domain.TipoPessoa;
+import br.com.meunegocio360.core.shared.domain.TipoPessoa;
 import java.time.Instant;
 import java.util.UUID;
 

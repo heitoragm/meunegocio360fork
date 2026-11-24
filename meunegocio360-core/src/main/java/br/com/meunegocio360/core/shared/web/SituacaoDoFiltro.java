@@ -1,6 +1,6 @@
-package br.com.meunegocio360.core.cliente.application;
+package br.com.meunegocio360.core.shared.web;
 
-/** Filtro {@code situacao} da listagem (RN-07): por padrão, só os ativos. */
+/** Filtro {@code situacao} das listagens de cadastros mestres: por padrão, só os ativos. */
 public enum SituacaoDoFiltro {
   ATIVO(true),
   INATIVO(false),
@@ -13,7 +13,7 @@ public enum SituacaoDoFiltro {
   }
 
   /** {@code null} quando não filtra pela situação. */
-  Boolean ativo() {
+  public Boolean ativo() {
     return ativo;
   }
 }

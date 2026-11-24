@@ -1,6 +1,6 @@
-package br.com.meunegocio360.core.cliente.api;
+package br.com.meunegocio360.core.shared.validation;
 
-import br.com.meunegocio360.core.cliente.domain.TipoPessoa;
+import br.com.meunegocio360.core.shared.domain.TipoPessoa;
 import jakarta.validation.Constraint;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -11,13 +11,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * RN-02: o documento deve ser um CPF válido para pessoa física e um CNPJ válido para pessoa
- * jurídica. O erro é registrado no campo {@code documento}.
+ * O documento deve ser um CPF válido para pessoa física e um CNPJ válido para pessoa jurídica
+ * (RNF-BE-27). Anotação de classe para corpos de requisição; o erro é registrado no campo {@code
+ * documento}.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = DocumentoCompativel.Validador.class)
-@interface DocumentoCompativel {
+public @interface DocumentoCompativel {
 
   String message() default "documento incompatível com o tipo de pessoa";
 
@@ -25,7 +26,7 @@ import java.lang.annotation.Target;
 
   Class<? extends Payload>[] payload() default {};
 
-  /** Corpos de requisição com tipo de pessoa e documento. */
+  /** Corpos de requisição com tipo de pessoa e documento (já sem máscara). */
   interface ComDocumento {
     String tipoPessoa();
 
@@ -36,7 +37,7 @@ import java.lang.annotation.Target;
 
     @Override
     public boolean isValid(ComDocumento corpo, ConstraintValidatorContext contexto) {
-      TipoPessoa tipo = ClienteRequests.tipo(corpo.tipoPessoa());
+      TipoPessoa tipo = TipoPessoa.deTexto(corpo.tipoPessoa());
       // Tipo ausente/inválido e documento em branco já têm as próprias mensagens.
       if (tipo == null || corpo.documento() == null || corpo.documento().isEmpty()) {
         return true;
