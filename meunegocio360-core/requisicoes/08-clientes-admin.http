@@ -1,0 +1,79 @@
+# RF-BE-003 — Clientes, perfil ADMIN (todas as operações).
+#
+# Pré-requisito: empresa ativa (execute antes o arquivo 05-empresa-admin.http).
+# Execute NA ORDEM. O último item exclui o cliente criado, então o arquivo pode ser repetido.
+
+@baseUrl = http://localhost:8080/api/v1
+
+### 1. Login como ADMIN
+# @name login
+# @prompt senha Senha do admin (valor de SEED_ADMIN_SENHA no .env)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@meunegocio360.com.br",
+  "senha": "{{senha}}"
+}
+
+### 2. Cadastro de pessoa jurídica → 201, Location /api/v1/clientes/{id}, ativo true, versao 0
+# @name cadastro
+POST {{baseUrl}}/clientes
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "tipoPessoa": "JURIDICA",
+  "nome": "Padaria Pão Quente Ltda",
+  "documento": "11.444.777/0001-61",
+  "email": "contato@paoquente.com.br"
+}
+
+### 3. Pessoa física com CNPJ no documento → 400 VALIDATION_ERROR com erro no campo "documento"
+POST {{baseUrl}}/clientes
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "tipoPessoa": "FISICA",
+  "nome": "Documento Trocado",
+  "documento": "11444777000161"
+}
+
+### 4. Busca pelo início do CNPJ, com máscara → 200 com a padaria em "content"
+GET {{baseUrl}}/clientes?q=11.444.777
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### 5. Edição com a versao lida (0) → 200, telefone novo e versao 1
+PUT {{baseUrl}}/clientes/{{cadastro.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "tipoPessoa": "JURIDICA",
+  "nome": "Padaria Pão Quente Ltda",
+  "documento": "11444777000161",
+  "email": "contato@paoquente.com.br",
+  "telefone": "1133334444",
+  "versao": 0
+}
+
+### 6. Mesma edição com a versao antiga (0) → 409 VERSION_CONFLICT
+PUT {{baseUrl}}/clientes/{{cadastro.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "tipoPessoa": "JURIDICA",
+  "nome": "Padaria Pão Quente Ltda",
+  "documento": "11444777000161",
+  "versao": 0
+}
+
+### 7. Exclusão de cliente sem vínculos → 204
+DELETE {{baseUrl}}/clientes/{{cadastro.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### 8. O cliente excluído não existe mais → 404 CUSTOMER_NOT_FOUND
+GET {{baseUrl}}/clientes/{{cadastro.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}

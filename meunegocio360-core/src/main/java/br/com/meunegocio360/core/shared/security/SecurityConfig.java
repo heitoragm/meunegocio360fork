@@ -3,6 +3,7 @@ package br.com.meunegocio360.core.shared.security;
 import jakarta.servlet.DispatcherType;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -57,6 +58,7 @@ public class SecurityConfig {
       ProblemaDeAutenticacaoEntryPoint entryPoint,
       @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver,
       CorsConfigurationSource corsConfigurationSource,
+      ObjectProvider<RegrasDeAcesso> regrasDasFeatures,
       @Value("${springdoc.api-docs.enabled:true}") boolean swaggerHabilitado)
       throws Exception {
     CorsFilter corsFilter = new CorsFilter(corsConfigurationSource);
@@ -81,6 +83,8 @@ public class SecurityConfig {
           if (swaggerHabilitado) {
             auth.requestMatchers(HttpMethod.GET, ROTAS_SWAGGER).permitAll();
           }
+          // Regras de perfil de cada feature, avaliadas antes da leitura do corpo (RNF-BE-47).
+          regrasDasFeatures.orderedStream().forEach(regras -> regras.aplicar(auth));
           auth.anyRequest().authenticated();
         })
         .oauth2ResourceServer(rs ->

@@ -3,6 +3,7 @@ package br.com.meunegocio360.core.empresa.api;
 import br.com.meunegocio360.core.empresa.domain.DadosCadastrais;
 import br.com.meunegocio360.core.shared.validation.Cnpj;
 import br.com.meunegocio360.core.shared.validation.FusoHorario;
+import br.com.meunegocio360.core.shared.web.Textos;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

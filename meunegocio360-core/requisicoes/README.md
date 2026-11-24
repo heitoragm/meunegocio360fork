@@ -11,6 +11,9 @@ Arquivos `.http` para verificar manualmente os critérios de aceite dos requisit
 | `05-empresa-admin.http` | RF-BE-002 como `ADMIN`: primeiro cadastro, CNPJ inválido, edição com `versao`, conflito de versão, inativação e reativação. |
 | `06-empresa-operador-comercial.http` | RF-BE-002 como `OPERADOR_COMERCIAL`: consulta permitida; cadastro, edição e situação negados (`403`). |
 | `07-empresa-operador-financeiro.http` | RF-BE-002 como `OPERADOR_FINANCEIRO`: consulta permitida; escrita negada (`403`). |
+| `08-clientes-admin.http` | RF-BE-003 como `ADMIN`: cadastro de pessoa jurídica, documento incompatível, busca por documento, edição com `versao`, conflito de versão e exclusão. |
+| `09-clientes-operador-comercial.http` | RF-BE-003 como `OPERADOR_COMERCIAL`: CPF com máscara, documento duplicado, busca sem acentos, inativação, filtro `situacao` e reativação. |
+| `10-clientes-operador-financeiro.http` | RF-BE-003 como `OPERADOR_FINANCEIRO`: tudo responde `403`, mesmo com corpo inválido. |
 
 ## Preparação
 

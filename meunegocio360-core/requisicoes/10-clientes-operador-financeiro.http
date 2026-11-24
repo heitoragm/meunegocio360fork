@@ -1,0 +1,45 @@
+# RF-BE-003 — Clientes, perfil OPERADOR_FINANCEIRO (sem acesso: tudo responde 403 ACCESS_DENIED).
+#
+# O 403 vem antes de qualquer validação: mesmo um corpo inválido não revela mensagens do recurso.
+
+@baseUrl = http://localhost:8080/api/v1
+
+### 1. Login como OPERADOR_FINANCEIRO
+# @name login
+# @prompt senha Senha do operador financeiro (valor de SEED_FINANCEIRO_SENHA no .env)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "financeiro@meunegocio360.com.br",
+  "senha": "{{senha}}"
+}
+
+### 2. Listagem → 403 ACCESS_DENIED
+GET {{baseUrl}}/clientes
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### 3. Cadastro com corpo válido → 403 ACCESS_DENIED
+POST {{baseUrl}}/clientes
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "tipoPessoa": "FISICA",
+  "nome": "Tentativa do Financeiro",
+  "documento": "39053344705"
+}
+
+### 4. Cadastro com corpo inválido → também 403 ACCESS_DENIED (e não 400)
+POST {{baseUrl}}/clientes
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "tipoPessoa": "OUTRA",
+  "nome": "X"
+}
+
+### 5. Exclusão → 403 ACCESS_DENIED
+DELETE {{baseUrl}}/clientes/00000000-0000-0000-0000-000000000000
+Authorization: Bearer {{login.response.body.$.accessToken}}

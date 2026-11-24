@@ -146,6 +146,12 @@ public class GlobalExceptionHandler {
         request);
   }
 
+  @ExceptionHandler(ParametroInvalidoException.class)
+  public ResponseEntity<ProblemDetail> tratarParametroDeConsulta(
+      ParametroInvalidoException ex, HttpServletRequest request) {
+    return validacao(List.of(new ErroDeCampo(ex.getCampo(), ex.getMessage())), request);
+  }
+
   @ExceptionHandler(MethodArgumentTypeMismatchException.class)
   public ResponseEntity<ProblemDetail> tratarParametroInvalido(
       MethodArgumentTypeMismatchException ex, HttpServletRequest request) {

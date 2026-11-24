@@ -1,0 +1,79 @@
+# RF-BE-003 — Clientes, perfil OPERADOR_COMERCIAL (todas as operações).
+#
+# Pré-requisito: empresa ativa (execute antes o arquivo 05-empresa-admin.http).
+# Execute NA ORDEM. O último item exclui o cliente criado, então o arquivo pode ser repetido.
+
+@baseUrl = http://localhost:8080/api/v1
+
+### 1. Login como OPERADOR_COMERCIAL
+# @name login
+# @prompt senha Senha do operador comercial (valor de SEED_USUARIO_SENHA no .env)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "usuario@meunegocio360.com.br",
+  "senha": "{{senha}}"
+}
+
+### 2. Cadastro de pessoa física com CPF mascarado → 201, documento gravado "52998224725"
+# @name cadastro
+POST {{baseUrl}}/clientes
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "tipoPessoa": "FISICA",
+  "nome": "Maria José Antônia",
+  "documento": "529.982.247-25",
+  "email": "maria@exemplo.com.br",
+  "telefone": "11987654321"
+}
+
+### 3. Mesmo CPF, sem máscara → 409 CUSTOMER_DOCUMENT_DUPLICATE
+POST {{baseUrl}}/clientes
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "tipoPessoa": "FISICA",
+  "nome": "Outra Maria",
+  "documento": "52998224725"
+}
+
+### 4. Busca sem acentos nem maiúsculas → 200 com "Maria José Antônia" em "content"
+GET {{baseUrl}}/clientes?q=jose antonia
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### 5. Inativação → 200 com ativo false
+# @name inativacao
+PATCH {{baseUrl}}/clientes/{{cadastro.response.body.$.id}}/situacao
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "ativo": false,
+  "versao": {{cadastro.response.body.$.versao}}
+}
+
+### 6. Listagem padrão (só ativos) → a cliente inativa NÃO aparece
+GET {{baseUrl}}/clientes?q=maria
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### 7. Listagem com situacao=TODOS → a cliente inativa aparece
+GET {{baseUrl}}/clientes?q=maria&situacao=TODOS
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### 8. Reativação → 200 com ativo true
+PATCH {{baseUrl}}/clientes/{{cadastro.response.body.$.id}}/situacao
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "ativo": true,
+  "versao": {{inativacao.response.body.$.versao}}
+}
+
+### 9. Exclusão (sem vínculos) → 204
+DELETE {{baseUrl}}/clientes/{{cadastro.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
