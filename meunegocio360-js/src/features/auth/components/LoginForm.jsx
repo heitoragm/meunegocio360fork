@@ -6,6 +6,7 @@ import Form from 'react-bootstrap/Form'
 import Spinner from 'react-bootstrap/Spinner'
 import { useForm } from 'react-hook-form'
 import { ApiError } from '../../../shared/lib/http'
+import { aplicarErrosDeCampo } from '../../../shared/lib/mensagens'
 import { useLogin } from '../hooks/useLogin'
 import { loginSchema } from '../schemas'
 import { AvisoDeBloqueio } from './AvisoDeBloqueio'
@@ -57,13 +58,10 @@ export function LoginForm() {
       return
     }
     if (codigo === 'VALIDATION_ERROR' && falha.errors.length > 0) {
-      const camposComErro = falha.errors.filter((e) => CAMPOS.includes(e.field))
-      camposComErro.forEach((e) =>
-        setError(e.field, { type: 'server', message: capitalizar(e.message) }),
-      )
-      if (camposComErro.length > 0) {
+      const marcados = aplicarErrosDeCampo(falha.errors, CAMPOS, setError)
+      if (marcados.length > 0) {
         setErro(null)
-        setFocus(camposComErro[0].field)
+        setFocus(marcados[0])
         return
       }
     }
@@ -146,13 +144,4 @@ export function LoginForm() {
       </Button>
     </Form>
   )
-}
-
-/** As mensagens do servidor vêm em minúsculas e sem ponto ("deve ser um e-mail válido"). */
-function capitalizar(texto) {
-  if (!texto) {
-    return texto
-  }
-  const frase = `${texto.charAt(0).toUpperCase()}${texto.slice(1)}`
-  return frase.endsWith('.') ? frase : `${frase}.`
 }

@@ -1,9 +1,7 @@
 import { Suspense } from 'react'
-import Alert from 'react-bootstrap/Alert'
-import Button from 'react-bootstrap/Button'
-import Container from 'react-bootstrap/Container'
 import { Outlet } from 'react-router'
 import { Carregando } from '../shared/ui/Carregando'
+import { TelaDeErro } from '../shared/ui/TelaDeErro'
 import { STATUS, useAuth } from '../features/auth'
 
 /**
@@ -20,17 +18,11 @@ export function RootLayout() {
 
   if (status === STATUS.ERRO) {
     return (
-      <main className="flex-grow-1 d-flex align-items-center py-5">
-        <title>Erro de conexão · MeuNegócio360</title>
-        <Container className="text-center" style={{ maxWidth: '32rem' }}>
-          <h1 className="h3">Não foi possível conectar</h1>
-          <Alert variant="danger" className="my-4">
-            Não conseguimos falar com o servidor. Verifique sua conexão e tente novamente.
-          </Alert>
-          <Button variant="primary" onClick={tentarNovamente}>
-            Tentar novamente
-          </Button>
-        </Container>
+      <main className="flex-grow-1 d-flex">
+        <TelaDeErro
+          mensagem="Não conseguimos falar com o servidor. Verifique sua conexão e tente novamente."
+          aoTentarNovamente={tentarNovamente}
+        />
       </main>
     )
   }
