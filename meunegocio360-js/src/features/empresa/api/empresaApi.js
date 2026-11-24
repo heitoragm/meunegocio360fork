@@ -15,6 +15,12 @@ export async function obterEmpresaAtiva() {
   }
 }
 
+/** Empresas inativas, paginadas (somente ADMIN), para reativação no primeiro cadastro. */
+export function listarEmpresasInativas({ page = 0, size = 5 } = {}) {
+  const parametros = new URLSearchParams({ page: String(page), size: String(size) })
+  return request(`/empresa/inativas?${parametros}`)
+}
+
 export function cadastrarEmpresa(dados) {
   return request('/empresa', { method: 'POST', body: dados })
 }

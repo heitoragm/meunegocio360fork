@@ -41,11 +41,15 @@ export function BarraDeNavegacao() {
         <Container>
           <Navbar.Toggle
             aria-controls="menu-principal"
-            aria-label="Abrir menu de navegação"
+            label="Abrir menu de navegação"
             className="order-0"
           />
 
-          <Navbar.Brand as={Link} to="/" className="mn-marca-navbar order-1 mx-auto ms-lg-0 me-lg-4">
+          <Navbar.Brand
+            as={Link}
+            to="/"
+            className="mn-marca-navbar order-1 mx-auto ms-lg-0 me-lg-4"
+          >
             <img src={icone} alt="MeuNegócio360 — página inicial" width={94} height={96} />
           </Navbar.Brand>
 
@@ -89,7 +93,13 @@ export function BarraDeNavegacao() {
               </span>
               <Button variant="outline-dark" onClick={aoSair} disabled={saindo}>
                 {saindo && (
-                  <Spinner as="span" animation="border" size="sm" aria-hidden="true" className="me-2" />
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    aria-hidden="true"
+                    className="me-2"
+                  />
                 )}
                 Sair
               </Button>

@@ -102,3 +102,59 @@ $theme-colors: map-merge(
   max-width: 16rem;
   height: auto;
 }
+
+// Larguras de leitura confortável para telas de formulário e mensagens.
+.mn-conteudo-estreito {
+  max-width: 40rem;
+}
+
+.mn-conteudo-medio {
+  max-width: 52rem;
+}
+
+// Marca na barra de navegação (RF-FE-002): ícone branco sobre o Laranja. É logotipo (WCAG 1.4.11
+// o isenta) e, ainda assim, tem 3,7:1 contra o fundo.
+.mn-marca-navbar {
+  display: inline-flex;
+  align-items: center;
+  padding-block: 0;
+
+  img {
+    height: 2.75rem;
+    width: auto;
+  }
+}
+
+// Botão só com ícone (pesquisar) com alvo de 44×44 px (RNF-FE-23) e ícone em Preto.
+.mn-botao-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  color: $mn-preto;
+
+  &:disabled {
+    color: $mn-preto;
+  }
+}
+
+// Hambúrguer também com alvo de 44 px.
+.navbar-toggler {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+}
+
+// Item ativo do menu: além da cor (todos são Preto), sublinhado e negrito (informação não só por cor).
+.navbar .nav-link.active {
+  font-weight: $font-weight-semibold;
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+
+.navbar .nav-link {
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+}

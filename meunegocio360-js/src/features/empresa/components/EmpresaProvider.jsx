@@ -1,8 +1,13 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Outlet } from 'react-router'
 import { obterEmpresaAtiva } from '../api/empresaApi'
-import { CHAVE_EMPRESA, ESTADO_EMPRESA, EmpresaContext } from '../empresaContext'
+import {
+  CHAVE_EMPRESA,
+  CHAVE_EMPRESAS_INATIVAS,
+  ESTADO_EMPRESA,
+  EmpresaContext,
+} from '../empresaContext'
 
 /**
  * Empresa ativa e parâmetros de exibição (RF-FE-002). Consulta GET /empresa UMA vez por sessão,
@@ -17,9 +22,6 @@ export function EmpresaProvider({ children }) {
     staleTime: Infinity,
     retry: false,
   })
-  // A API só devolve a empresa ATIVA; a inativada agora há pouco fica em memória para permitir
-  // reativá-la nesta sessão (não há endpoint que liste empresas inativas).
-  const [empresaInativada, setEmpresaInativada] = useState(null)
 
   const estado = consulta.isPending
     ? ESTADO_EMPRESA.CARREGANDO
@@ -29,18 +31,14 @@ export function EmpresaProvider({ children }) {
         ? ESTADO_EMPRESA.ATIVA
         : ESTADO_EMPRESA.AUSENTE
 
+  /**
+   * Atualiza a empresa ativa com a resposta da API (cadastro, edição, inativação, reativação),
+   * sem nova consulta. A lista de inativas muda junto e é recarregada quando for exibida.
+   */
   const definirEmpresaAtiva = useCallback(
     (empresa) => {
-      queryClient.setQueryData(CHAVE_EMPRESA, empresa)
-      setEmpresaInativada(null)
-    },
-    [queryClient],
-  )
-
-  const registrarInativacao = useCallback(
-    (empresa) => {
-      setEmpresaInativada(empresa)
-      queryClient.setQueryData(CHAVE_EMPRESA, null)
+      queryClient.setQueryData(CHAVE_EMPRESA, empresa?.ativa ? empresa : null)
+      queryClient.invalidateQueries({ queryKey: CHAVE_EMPRESAS_INATIVAS })
     },
     [queryClient],
   )
@@ -54,12 +52,10 @@ export function EmpresaProvider({ children }) {
       estado,
       empresa,
       nomeExibicao: empresa ? empresa.nomeFantasia || empresa.razaoSocial : null,
-      empresaInativada,
       recarregar,
       definirEmpresaAtiva,
-      registrarInativacao,
     }),
-    [estado, empresa, empresaInativada, recarregar, definirEmpresaAtiva, registrarInativacao],
+    [estado, empresa, recarregar, definirEmpresaAtiva],
   )
 
   return <EmpresaContext.Provider value={valor}>{children ?? <Outlet />}</EmpresaContext.Provider>

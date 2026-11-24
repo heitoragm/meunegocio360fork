@@ -43,7 +43,7 @@ Cada RF seguinte acrescenta o seu item ao menu; até lá, o menu mostra apenas *
 
 | Rota | Acesso | Descrição |
 | --- | --- | --- |
-| `/empresa/cadastro` | `ADMIN`, somente sem empresa ativa | Formulário do primeiro cadastro, com o título "Cadastre sua empresa". Com empresa ativa, redireciona para `/empresa`. |
+| `/empresa/cadastro` | `ADMIN`, somente sem empresa ativa | Formulário do primeiro cadastro, com o título "Cadastre sua empresa". Acima dele, quando houver, a lista paginada de empresas inativas (`GET /empresa/inativas`) com a ação **Reativar**, disponível também depois de recarregar a página. Com empresa ativa, redireciona para `/empresa`. |
 | `/empresa` | Autenticado | Exibe os dados da empresa ativa. `ADMIN` vê o botão **Editar**, o formulário em modo de edição e as ações **Inativar**/**Reativar**. Os demais perfis veem os dados somente em leitura. |
 | `/` e demais rotas protegidas | Autenticado **com empresa ativa** (`RequireEmpresa`) | Dentro do `AppLayout`. |
 

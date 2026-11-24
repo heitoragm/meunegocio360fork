@@ -1,9 +1,27 @@
-import { useMutation } from '@tanstack/react-query'
-import { alterarSituacaoDaEmpresa, atualizarEmpresa, cadastrarEmpresa } from '../api/empresaApi'
+import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
+import {
+  alterarSituacaoDaEmpresa,
+  atualizarEmpresa,
+  cadastrarEmpresa,
+  listarEmpresasInativas,
+} from '../api/empresaApi'
+import { CHAVE_EMPRESAS_INATIVAS } from '../empresaContext'
 import { useEmpresa } from './useEmpresa'
 
-// Mutações da empresa pelo TanStack Query (RNF-FE-04). No sucesso, o EmpresaProvider é atualizado
-// com a resposta da API, sem nova consulta.
+// Consultas e mutações da empresa pelo TanStack Query (RNF-FE-04). No sucesso de uma mutação, o
+// EmpresaProvider é atualizado com a resposta da API, sem nova consulta da empresa ativa.
+
+const TAMANHO_DA_PAGINA_DE_INATIVAS = 5
+
+/** Empresas inativas, paginadas (somente ADMIN; usada em /empresa/cadastro). */
+export function useEmpresasInativas(pagina) {
+  return useQuery({
+    queryKey: [...CHAVE_EMPRESAS_INATIVAS, pagina],
+    queryFn: () => listarEmpresasInativas({ page: pagina, size: TAMANHO_DA_PAGINA_DE_INATIVAS }),
+    placeholderData: keepPreviousData,
+    retry: false,
+  })
+}
 
 export function useCadastrarEmpresa() {
   const { definirEmpresaAtiva } = useEmpresa()
@@ -18,11 +36,11 @@ export function useAtualizarEmpresa() {
   })
 }
 
+/** Inativa ou reativa; a resposta já diz se a empresa ficou ativa. */
 export function useAlterarSituacaoDaEmpresa() {
-  const { definirEmpresaAtiva, registrarInativacao } = useEmpresa()
+  const { definirEmpresaAtiva } = useEmpresa()
   return useMutation({
     mutationFn: ({ id, ativa, versao }) => alterarSituacaoDaEmpresa(id, { ativa, versao }),
-    onSuccess: (empresa) =>
-      empresa.ativa ? definirEmpresaAtiva(empresa) : registrarInativacao(empresa),
+    onSuccess: definirEmpresaAtiva,
   })
 }

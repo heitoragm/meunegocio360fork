@@ -98,7 +98,12 @@ export function EmpresaForm({ valoresIniciais, textoEnviar, aoEnviar, aoCancelar
 
       <Campo id="razaoSocial" rotulo="Razão social" erro={errors.razaoSocial}>
         {(props) => (
-          <Form.Control type="text" autoComplete="organization" {...props} {...register('razaoSocial')} />
+          <Form.Control
+            type="text"
+            autoComplete="organization"
+            {...props}
+            {...register('razaoSocial')}
+          />
         )}
       </Campo>
 
