@@ -2,6 +2,8 @@ package br.com.meunegocio360.core.empresa.domain;
 
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Porta de persistência da empresa; implementada na camada infra (RNF-010). Outras features NÃO
@@ -14,6 +16,9 @@ public interface EmpresaRepository {
   Optional<Empresa> findByAtivaTrue();
 
   boolean existsByAtivaTrue();
+
+  /** Empresas inativas, para reativação pelo ADMIN. */
+  Page<Empresa> findByAtivaFalse(Pageable pagina);
 
   boolean existsByCnpj(String cnpj);
 

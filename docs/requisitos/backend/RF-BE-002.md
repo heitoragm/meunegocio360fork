@@ -53,6 +53,7 @@ Nenhuma biblioteca nova. O requisito reutiliza Flyway, Spring Security, validaç
 | Operação | `ADMIN` | `OPERADOR_COMERCIAL` | `OPERADOR_FINANCEIRO` |
 | --- | :---: | :---: | :---: |
 | Consultar empresa ativa | ✔ | ✔ | ✔ |
+| Listar empresas inativas | ✔ | ✘ (`403`) | ✘ (`403`) |
 | Cadastrar, editar, inativar e reativar | ✔ | ✘ (`403`) | ✘ (`403`) |
 
 ## Contrato da API
@@ -79,6 +80,10 @@ Retorna a **empresa ativa**. `404` com `code` `COMPANY_NOT_REGISTERED` quando n�
   "versao": 0
 }
 ```
+
+### `GET /empresa/inativas` (`ADMIN`)
+
+Lista paginada das empresas **inativas** (RNF-BE-13), para que a interface ofereça a reativação quando não há empresa ativa, inclusive depois de recarregar a página. Parâmetros `page`, `size` (padrão 20, máximo 100) e `sort` (`razaoSocial` ou `atualizadoEm`, padrão `atualizadoEm,desc`). Resposta `200` no formato `{ content, page, size, totalElements, totalPages }`, com cada item no formato da empresa acima. Demais perfis: `403` `ACCESS_DENIED`.
 
 ### `POST /empresa` (`ADMIN`)
 
