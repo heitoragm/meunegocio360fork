@@ -158,3 +158,30 @@ $theme-colors: map-merge(
   display: flex;
   align-items: center;
 }
+
+// Opções de rádio com alvo de 44 px (RNF-FE-23): a linha inteira do rótulo é clicável.
+.mn-opcao {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  margin-bottom: 0;
+  padding-left: 0;
+
+  .form-check-input {
+    float: none;
+    margin: 0;
+  }
+}
+
+// Sugestões do ClienteSelect sobre o conteúdo, com rolagem própria.
+.mn-sugestoes {
+  z-index: $zindex-dropdown;
+  max-height: 20rem;
+  overflow-y: auto;
+  margin-top: 0.25rem;
+}
+
+.mn-opcao-sugestao {
+  cursor: pointer;
+}
